@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: api-gateway
+
+server:
+  port: 8080
+
+# Service URLs
+order:
+  service:
+    url: http://localhost:8081
+
+inventory:
+  service:
+    url: http://localhost:8082
+
+# OpenTelemetry Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,loggers
+  endpoint:
+    health:
+      show-details: always
+  
+  # OpenTelemetry configuration
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+  
+  tracing:
+    sampling:
+      probability: 1.0  # 100% sampling for demo
+
+# Logging with trace correlation
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    root: INFO
+    com.example.gateway: DEBUG
+
+---
+# Docker profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+order:
+  service:
+    url: ${ORDER_SERVICE_URL:http://order-service:8081}
+
+inventory:
+  service:
+    url: ${INVENTORY_SERVICE_URL:http://inventory-service:8082}
+
+management:
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://jaeger:4318}/v1/traces

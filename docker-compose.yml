@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: orders_db,inventory_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tracing-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4318:4318" # OTLP HTTP receiver
+      - "4317:4317" # OTLP gRPC receiver
+    networks:
+      - tracing-network
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=inventory_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=inventory-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tracing-network
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=orders_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=order-service
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tracing-network
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=api-gateway
+      - ORDER_SERVICE_URL=http://order-service:8081
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+    ports:
+      - "8080:8080"
+    depends_on:
+      order-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tracing-network
+
+networks:
+  tracing-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
