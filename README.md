@@ -2,7 +2,7 @@
 
 A comprehensive educational project demonstrating distributed tracing concepts in a microservices architecture using **Spring Boot 4.0**, **OpenTelemetry**, and **Jaeger**.
 
-## 📚 What This Project Teaches
+## What This Project Teaches
 
 This project is designed to teach you the fundamentals of distributed tracing:
 
@@ -15,10 +15,10 @@ This project is designed to teach you the fundamentals of distributed tracing:
 
 - **Spring Boot 4.0.2** with native `spring-boot-starter-opentelemetry`
 - **Java 21** with modern features (records, pattern matching)
-- **Gradle 8.11.1** as the build tool
+- **Gradle** as the build tool
 - **OpenTelemetry** for instrumentation (OTLP protocol)
 - **Jaeger** as the tracing backend
-- **PostgreSQL 16** for realistic database tracing
+- **PostgreSQL** for realistic database tracing
 - **Docker Compose** for local orchestration
 
 ### What This Project Does NOT Include
@@ -35,7 +35,7 @@ This is a focused learning project. It explicitly excludes:
 
 **Focus:** Distributed tracing concepts only.
 
-## 🏗️ Architecture
+## Architecture
 
 This project consists of 3 microservices in an e-commerce domain:
 
@@ -77,7 +77,7 @@ This project consists of 3 microservices in an e-commerce domain:
    - PostgreSQL database: `products` table
    - Pre-loaded with 5 sample products
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -89,7 +89,7 @@ This project consists of 3 microservices in an e-commerce domain:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/rajkundalia/learning-distributed-tracing.git
 cd learning-distributed-tracing
 
 # Build and run all services with Docker Compose
@@ -108,7 +108,7 @@ Once all services are running:
 - **Inventory Service Swagger UI:** http://localhost:8082/swagger-ui.html
 - **Jaeger UI:** http://localhost:16686
 
-## 📊 API Endpoints & Trace Scenarios
+## API Endpoints & Trace Scenarios
 
 This project demonstrates 5 key distributed tracing scenarios. Each scenario teaches different tracing concepts.
 
@@ -389,7 +389,7 @@ api-gateway: POST /api/orders/bulk
 
 ---
 
-## 🔍 Key Concepts Explained
+## Key Concepts Explained
 
 ### Traces
 A **trace** represents the complete journey of a request through your system. It's composed of one or more spans.
@@ -493,7 +493,7 @@ Indicates whether the operation succeeded or failed.
 
 ---
 
-## 📝 Log Correlation
+## Log Correlation
 
 **What is log correlation?**
 
@@ -535,7 +535,7 @@ OpenTelemetry automatically populates the MDC (Mapped Diagnostic Context) with t
 
 ---
 
-## 🛠️ Manual Span Creation
+## Manual Span Creation
 
 **When to create custom spans:**
 - Business logic that isn't automatically instrumented
@@ -588,7 +588,7 @@ public class OrderService {
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Traces Not Appearing in Jaeger
 
@@ -699,7 +699,7 @@ curl -X POST http://localhost:8081/actuator/loggers/com.example.order \
 
 ---
 
-## 🔄 How to Replace Jaeger (Backend Independence)
+## How to Replace Jaeger (Backend Independence)
 
 One of the key benefits of using OpenTelemetry is **backend independence**. You can switch from Jaeger to any OTLP-compatible backend with minimal configuration changes.
 
@@ -793,7 +793,7 @@ environment:
 
 ---
 
-## 📖 Learning Path
+## Learning Path
 
 Suggested order to explore this project:
 
@@ -846,7 +846,7 @@ Suggested order to explore this project:
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 ### Official Documentation
 
@@ -868,7 +868,7 @@ Suggested order to explore this project:
 
 ---
 
-## 🤝 Contributing & Feedback
+## Contributing & Feedback
 
 This is a learning project created for educational purposes.
 
@@ -886,13 +886,13 @@ This is a learning project created for educational purposes.
 
 ---
 
-## 📄 License
+## License
 
 This project is open-source and available for educational purposes.
 
 ---
 
-## 🎯 Summary
+## Summary
 
 **What you learned:**
 - ✅ How to instrument Spring Boot microservices with OpenTelemetry
@@ -910,4 +910,4 @@ This project is open-source and available for educational purposes.
 - Learn about sampling strategies for production
 - Investigate advanced topics (baggage, span links, trace exemplars)
 
-Happy tracing! 🚀
+Happy tracing! 
