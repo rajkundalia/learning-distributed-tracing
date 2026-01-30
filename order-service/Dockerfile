@@ -1,5 +1,5 @@
 # Build Stage
-FROM gradle:8.11.1-jdk21-alpine AS builder
+FROM gradle:8.14-jdk21-alpine AS builder
 WORKDIR /app
 COPY build.gradle .
 COPY src ./src
