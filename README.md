@@ -89,7 +89,7 @@ This project consists of 3 microservices in an e-commerce domain:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/rajkundalia/learning-distributed-tracing.git
 cd learning-distributed-tracing
 
 # Build and run all services with Docker Compose
