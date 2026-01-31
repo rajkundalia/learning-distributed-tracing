@@ -46,6 +46,9 @@ management:
   tracing:
     sampling:
       probability: 1.0  # 100% sampling for demo
+    propagation:
+      consume: [ "b3", "w3c" ]
+      produce: [ "b3", "w3c" ]
 
 # Logging with trace correlation
 logging:

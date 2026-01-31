@@ -36,9 +36,8 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     
     
-    
     // OpenTelemetry OTLP Exporter
-    runtimeOnly 'io.opentelemetry:opentelemetry-exporter-otlp'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
     
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
