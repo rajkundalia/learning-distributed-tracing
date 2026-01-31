@@ -2,8 +2,8 @@ package com.example.order.client;
 
 import com.example.order.dto.ProductResponse;
 import com.example.order.exception.InsufficientStockException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -11,14 +11,17 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class InventoryClient {
 
+    private static final Logger log = LoggerFactory.getLogger(InventoryClient.class);
     private final RestClient.Builder restClientBuilder;
 
     @Value("${inventory.service.url}")
     private String inventoryServiceUrl;
+
+    public InventoryClient(RestClient.Builder restClientBuilder) {
+        this.restClientBuilder = restClientBuilder;
+    }
 
     public ProductResponse checkStock(Long productId, Integer quantity) {
         log.info("Calling inventory service to check stock for product {} with quantity {}", productId, quantity);

@@ -93,20 +93,55 @@ git clone https://github.com/rajkundalia/learning-distributed-tracing.git
 cd learning-distributed-tracing
 
 # Build and run all services with Docker Compose
-docker-compose up --build
+# Build and run all services with Docker Compose
+# -d: Detached mode (background)
+# --build: Rebuild images to ensure latest code changes
+docker-compose up -d --build
 
-# Wait for all services to be healthy (check logs)
-# You should see "Started [ServiceName]Application" for each service
+# Note: If you encounter issues, try a clean build:
+# docker-compose down -v
+# docker-compose up -d --build
+
+# Wait for all services to be healthy (check logs or docker ps)
 ```
 
 ### Access Points
 
 Once all services are running:
 
-- **API Gateway Swagger UI:** http://localhost:8080/swagger-ui.html
-- **Order Service Swagger UI:** http://localhost:8081/swagger-ui.html
-- **Inventory Service Swagger UI:** http://localhost:8082/swagger-ui.html
 - **Jaeger UI:** http://localhost:16686
+
+### Testing the Flows
+
+You can test all 5 distributed tracing flows using the provided scripts:
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy Bypass -File test-flows.ps1
+```
+
+**Windows (Batch):**
+```bash
+test-flows.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x test-flows.sh
+./test-flows.sh
+```
+
+The scripts will:
+- Test each of the 5 flows sequentially
+- Wait for your confirmation between flows (press ENTER to continue)
+- Display expected responses and what to check in Jaeger UI
+- Use color-coded output for better readability
+
+**Prerequisites for test scripts:**
+- All services must be running (`docker-compose up`)
+- `curl` must be installed on your system
+
+Alternatively, you can manually test each flow using the curl commands shown in the sections below.
 
 ## API Endpoints & Trace Scenarios
 

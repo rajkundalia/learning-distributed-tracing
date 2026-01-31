@@ -7,8 +7,8 @@ import com.example.inventory.exception.ProductNotFoundException;
 import com.example.inventory.repository.ProductRepository;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +16,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class InventoryService {
 
+    private static final Logger log = LoggerFactory.getLogger(InventoryService.class);
     private final ProductRepository productRepository;
     private final Tracer tracer;
+
+    public InventoryService(ProductRepository productRepository, Tracer tracer) {
+        this.productRepository = productRepository;
+        this.tracer = tracer;
+    }
 
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long productId, Integer requestedQuantity) {

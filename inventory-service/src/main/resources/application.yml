@@ -12,6 +12,7 @@ spring:
     hibernate:
       ddl-auto: create
     show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         format_sql: true
@@ -20,7 +21,6 @@ spring:
   sql:
     init:
       mode: always
-      defer-datasource-initialization: true
 
 server:
   port: 8082

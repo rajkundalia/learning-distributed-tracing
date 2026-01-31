@@ -12,8 +12,8 @@ import com.example.order.repository.OrderRepository;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository;
     private final InventoryClient inventoryClient;
     private final Tracer tracer;
+
+    public OrderService(OrderRepository orderRepository, InventoryClient inventoryClient, Tracer tracer) {
+        this.orderRepository = orderRepository;
+        this.inventoryClient = inventoryClient;
+        this.tracer = tracer;
+    }
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
