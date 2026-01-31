@@ -623,6 +623,75 @@ public class OrderService {
 
 ---
 
+## Implementation Details
+
+### Why TracingConfig is Required
+
+In Spring Boot 4, the `spring-boot-starter-opentelemetry` doesn't always auto-configure the OTLP exporter, even when `io.opentelemetry:opentelemetry-exporter-otlp` is on the classpath. 
+
+To ensure traces are exported to Jaeger, we explicitly configure the `OtlpHttpSpanExporter` bean in `TracingConfig.java`:
+
+```java
+@Configuration
+public class TracingConfig {
+    @Bean
+    public OtlpHttpSpanExporter otlpHttpSpanExporter(
+            @Value("${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}") String endpoint) {
+        return OtlpHttpSpanExporter.builder()
+                .setEndpoint(endpoint + "/v1/traces")
+                .build();
+    }
+}
+```
+
+This configuration:
+- Reads the OTLP endpoint from environment variables (`OTEL_EXPORTER_OTLP_ENDPOINT`)
+- Appends `/v1/traces` to the endpoint URL
+- Creates the exporter bean that Spring Boot's OpenTelemetry integration uses
+
+**Location:** This file exists in all three services:
+- `api-gateway/src/main/java/com/example/gateway/config/TracingConfig.java`
+- `order-service/src/main/java/com/example/order/config/TracingConfig.java`
+- `inventory-service/src/main/java/com/example/inventory/config/TracingConfig.java`
+
+### Trace Context Propagation
+
+For distributed tracing to work across services, trace context must be propagated via HTTP headers. This is achieved through:
+
+1. **spring-boot-starter-restclient** - Provides auto-configured `RestClient.Builder`
+2. **OpenTelemetry instrumentation** - Automatically adds trace headers to outgoing requests
+3. **Services must inject `RestClient.Builder`** - Never create `RestClient` with `new`
+
+**Example (from OrderProxyService.java):**
+```java
+@Service
+public class OrderProxyService {
+    private final RestClient.Builder restClientBuilder;
+    
+    // Constructor injection - Spring Boot provides instrumented builder
+    public OrderProxyService(RestClient.Builder restClientBuilder) {
+        this.restClientBuilder = restClientBuilder;
+    }
+    
+    public ResponseEntity<String> createOrder(String requestBody) {
+        // Build client from injected builder (has tracing instrumentation)
+        RestClient restClient = restClientBuilder.baseUrl(orderServiceUrl).build();
+        
+        return restClient.post()
+                .uri("/api/orders")
+                .body(requestBody)
+                .retrieve()
+                .toEntity(String.class);
+    }
+}
+```
+
+The injected `RestClient.Builder` is automatically instrumented by Spring Boot's OpenTelemetry integration to add trace context headers (`traceparent`) to all outgoing HTTP requests. This ensures the trace ID and span ID are propagated from the API Gateway → Order Service → Inventory Service.
+
+**Key Point:** If you create `RestClient` with `new RestClient()` instead of injecting the builder, trace context will NOT be propagated, and you'll see fragmented traces in Jaeger (one span per service instead of a connected tree).
+
+---
+
 ## Troubleshooting
 
 ### Traces Not Appearing in Jaeger
@@ -653,6 +722,12 @@ public class OrderService {
 
 5. **Verify sampling is enabled:**
    - Check `management.tracing.sampling.probability: 1.0`
+
+6. **Verify TracingConfig is present:**
+   - Check that `TracingConfig.java` exists in each service's config package
+   - This manually configures the `OtlpHttpSpanExporter` bean
+   - Without this, Spring Boot 4 may not auto-configure the exporter
+   - Verify the bean is being created by checking startup logs for "OtlpHttpSpanExporter"
 
 ### Services Not Starting
 

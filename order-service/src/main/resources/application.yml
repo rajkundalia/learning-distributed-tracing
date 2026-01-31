@@ -35,20 +35,9 @@ management:
     health:
       show-details: always
   
-  # OpenTelemetry configuration
-  otlp:
-    tracing:
-      endpoint: http://localhost:4318/v1/traces
-    metrics:
-      export:
-        enabled: false  # Disable metrics export (Jaeger only accepts traces)
-  
   tracing:
     sampling:
       probability: 1.0  # 100% sampling for demo
-    propagation:
-      consume: [ "b3", "w3c" ]
-      produce: [ "b3", "w3c" ]
 
 # Logging with trace correlation
 logging:

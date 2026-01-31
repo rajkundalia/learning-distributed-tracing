@@ -8,13 +8,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TracingConfig {
 
-    @Value("${management.otlp.tracing.endpoint}")
-    private String otlpEndpoint;
-
     @Bean
-    public OtlpHttpSpanExporter otlpHttpSpanExporter() {
+    public OtlpHttpSpanExporter otlpHttpSpanExporter(
+            @Value("${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}") String endpoint) {
         return OtlpHttpSpanExporter.builder()
-                .setEndpoint(otlpEndpoint)
+                .setEndpoint(endpoint + "/v1/traces")
                 .build();
     }
 }
