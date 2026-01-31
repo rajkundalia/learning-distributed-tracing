@@ -28,6 +28,9 @@ management:
   otlp:
     tracing:
       endpoint: http://localhost:4318/v1/traces
+    metrics:
+      export:
+        enabled: false  # Disable metrics export (Jaeger only accepts traces)
   
   tracing:
     sampling:
@@ -60,3 +63,6 @@ management:
   otlp:
     tracing:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://jaeger:4318}/v1/traces
+    metrics:
+      export:
+        enabled: false
