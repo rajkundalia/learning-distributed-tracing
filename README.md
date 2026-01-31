@@ -21,20 +21,6 @@ This project is designed to teach you the fundamentals of distributed tracing:
 - **PostgreSQL** for realistic database tracing
 - **Docker Compose** for local orchestration
 
-### What This Project Does NOT Include
-
-This is a focused learning project. It explicitly excludes:
-
-- ❌ Authentication/Authorization (Spring Security)
-- ❌ Message queues (Kafka, RabbitMQ)
-- ❌ Metrics dashboards (Prometheus/Grafana)
-- ❌ Service discovery (Eureka/Consul)
-- ❌ API Gateway patterns (rate limiting, circuit breakers)
-- ❌ Kubernetes deployment
-- ❌ CI/CD pipelines
-
-**Focus:** Distributed tracing concepts only.
-
 ## Architecture
 
 This project consists of 3 microservices in an e-commerce domain:
@@ -120,21 +106,20 @@ You can test all 5 distributed tracing flows using the provided scripts:
 powershell -ExecutionPolicy Bypass -File test-flows.ps1
 ```
 
-**Windows (Batch):**
+**Windows (Batch): [Untested, use LLM if it does not work]**
 ```bash
 test-flows.bat
 ```
 
-**Linux/Mac:**
+**Linux/Mac: [Untested, use LLM if it does not work]**
 ```bash
 chmod +x test-flows.sh
 ./test-flows.sh
 ```
 
 The scripts will:
-- Test each of the 5 flows sequentially
-- Wait for your confirmation between flows (press ENTER to continue)
-- Display expected responses and what to check in Jaeger UI
+- Test all 5 flows sequentially (no pauses)
+- Display SUCCESS/FAILED status for each flow
 - Use color-coded output for better readability
 
 **Prerequisites for test scripts:**
@@ -194,7 +179,7 @@ api-gateway: POST /api/orders (root span)
     └── order-service: INSERT orders (database query)
 ```
 
-**Span Count:** 6-7 spans
+**Span Count:** 5 spans
 
 **Key Observations:**
 - All spans should have **status: OK** (green)
@@ -405,7 +390,7 @@ api-gateway: POST /api/orders/bulk
         └── order-service: INSERT orders
 ```
 
-**Span Count:** 20+ spans (3 custom spans + nested operations)
+**Span Count:** 12 spans (3 custom spans + nested operations)
 
 **Key Observations:**
 - **Custom span name:** `process-single-order` (created manually in code)
@@ -813,7 +798,7 @@ curl -X POST http://localhost:8081/actuator/loggers/com.example.order \
 
 One of the key benefits of using OpenTelemetry is **backend independence**. You can switch from Jaeger to any OTLP-compatible backend with minimal configuration changes.
 
-### Switching Backends
+### Switching Backends [I have not tried this!]
 
 **No code changes required!** Only configuration changes in `application.yml`:
 
@@ -962,19 +947,10 @@ Suggested order to explore this project:
 
 - **OpenTelemetry:** https://opentelemetry.io/docs/
 - **Jaeger:** https://www.jaegertracing.io/docs/
-- **Spring Boot Observability:** https://spring.io/blog/2022/10/12/observability-with-spring-boot-3
-- **Spring Boot 4 Release Notes:** https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes
-
-### Concepts
-
-- **Distributed Tracing Primer:** https://opentelemetry.io/docs/concepts/observability-primer/#distributed-tracing
-- **W3C Trace Context:** https://www.w3.org/TR/trace-context/
-- **OTLP Specification:** https://opentelemetry.io/docs/specs/otlp/
 
 ### Tutorials
 
-- **OpenTelemetry Java:** https://opentelemetry.io/docs/languages/java/
-- **Spring Boot + OpenTelemetry:** https://opentelemetry.io/docs/languages/java/automatic/spring-boot/
+- **Spring Boot 4 + OpenTelemetry:** https://github.com/mhalbritter/spring-boot-and-opentelemetry (Read more at: https://spring.io/blog/2025/11/18/opentelemetry-with-spring-boot)
 
 ---
 
@@ -986,13 +962,19 @@ This is a learning project created for educational purposes.
 - **Found a bug?** Report it via GitHub issues
 - **Want to add a feature?** Fork and experiment!
 
-### Ideas for Extension
+### What This Project Does NOT Include
 
-- Add more trace scenarios (parallel processing, retries, timeouts)
-- Implement metrics with Micrometer
-- Add log aggregation with ELK stack
-- Create a frontend UI to visualize the e-commerce flow
-- Add integration tests with trace validation
+This is a focused learning project. It explicitly excludes:
+
+- ❌ Authentication/Authorization (Spring Security)
+- ❌ Message queues (Kafka, RabbitMQ)
+- ❌ Metrics dashboards (Prometheus/Grafana)
+- ❌ Service discovery (Eureka/Consul)
+- ❌ API Gateway patterns (rate limiting, circuit breakers)
+- ❌ Kubernetes deployment
+- ❌ CI/CD pipelines
+
+**Focus:** Distributed tracing concepts only.
 
 ---
 
@@ -1011,7 +993,6 @@ This project is open-source and available for educational purposes.
 - ✅ How to correlate logs with traces
 - ✅ How to identify performance bottlenecks
 - ✅ How to track errors across services
-- ✅ How to use vendor-neutral instrumentation (OTLP)
 
 **Next steps:**
 - Apply these concepts to your own projects
